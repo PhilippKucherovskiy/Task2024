@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Task2024;
 
 namespace Task2024
 {
@@ -29,6 +30,40 @@ namespace Task2024
             // 3) Product 2 - 10 item(s)
 
             // TODO Implement the logic for obtaining and generating the required data
+            
+            // Sorting orders by year
+            var ordersInYear = Orders.Where(o => o.OrderDate.Year == year).ToList();
+
+            // Making a dictionary to have the total amount of saled products
+            var productSales = new Dictionary<int, int>();
+
+            // Goes through each ordered product and increases it's quantity
+            foreach (var order in ordersInYear)
+            {
+                foreach (var orderItem in order.Items)
+                {
+                    if (productSales.ContainsKey(orderItem.ProductId))
+                        productSales[orderItem.ProductId] += orderItem.Quantity;
+                    else
+                        productSales[orderItem.ProductId] = orderItem.Quantity;
+                }
+            }
+
+            // sorting products by descending of the sales amount
+            var sortedProducts = Products
+               .Where(p => productSales.ContainsKey(p.Id))
+               .OrderByDescending(p => productSales[p.Id])
+               .ToList();
+
+            // A stroke with the sales statistics
+            var result = "";
+            for (var i = 0; i < sortedProducts.Count; i++)
+            {
+                result += $"{i + 1}) {sortedProducts[i].Name} - {productSales[sortedProducts[i].Id]} item(s)\r\n";
+            }
+
+            return result;
+        
         }
 
         /// <summary>
