@@ -93,6 +93,53 @@ namespace Task2024
             // Most selling: Product 3 (5 item(s))
 
             // TODO Implement the logic for obtaining and generating the required data  
+
+            //Creating a new dictionary for sales by year
+            var salesByYear = new Dictionary<int, double>();
+
+            // Another dictionary for best selling product by year
+            var bestSellingProductByYear = new Dictionary<int, (string Name, int Quantity)>();
+
+            // Goes trough each order
+            foreach (var order in Orders)
+            {
+                var year = order.OrderDate.Year;
+
+                // Order sum
+                var orderTotal = order.Items.Sum(item => Products.First(p => p.Id == item.ProductId).Price * item.Quantity);
+
+                // Renewing total sales amount for the year
+                if (salesByYear.ContainsKey(year))
+                    salesByYear[year] += orderTotal;
+                else
+                    salesByYear[year] = orderTotal;
+
+                // Renewing an information about the most popular product by year
+                foreach (var item in order.Items)
+                {
+                    if (bestSellingProductByYear.ContainsKey(year))
+                    {
+                        if (bestSellingProductByYear[year].Quantity < item.Quantity)
+                        {
+                            bestSellingProductByYear[year] = (Products.First(p => p.Id == item.ProductId).Name, item.Quantity);
+                        }
+                    }
+                    else
+                    {
+                        bestSellingProductByYear[year] = (Products.First(p => p.Id == item.ProductId).Name, item.Quantity);
+                    }
+                }
+            }
+
+            // A stroke with the sales information by year
+            var result = "";
+            foreach (var year in salesByYear.OrderByDescending(kvp => kvp.Key))
+            {
+                result += $"{year.Key} - {year.Value.ToString("N0")} usd.\r\n";
+                result += $"Most selling: {bestSellingProductByYear[year.Key].Name} ({bestSellingProductByYear[year.Key].Quantity} item(s))\r\n\r\n";
+            }
+
+            return result;
         }
-    }
+    }  
 }
